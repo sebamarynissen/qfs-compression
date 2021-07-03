@@ -37,7 +37,7 @@ let original = decompress(compressed);
 
 ### `decompress(input)`
 
- - [&lt;Buffer&gt;](https://nodejs.org/api/buffer.html) | [&lt;Uint8Array&gt;](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) A buffer with binary data that was previously compressed using QFS compression.
+ - input [&lt;Buffer&gt;](https://nodejs.org/api/buffer.html) | [&lt;Uint8Array&gt;](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) A buffer with binary data that was previously compressed using QFS compression.
 
 ## Caveats
 
