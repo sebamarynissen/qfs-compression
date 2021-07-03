@@ -9,6 +9,9 @@
   "scripts": {
     "test": "mocha"
   },
+  "files": [
+    "index.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sebamarynissen/qfs-compression.git"
@@ -18,7 +21,7 @@
     "compression",
     "lz77",
     "simcity",
-    "4"
+    "simcity 4"
   ],
   "author": "Sebastiaan Marynissen <sebastiaan.marynissen@gmail.com>",
   "license": "MIT",
