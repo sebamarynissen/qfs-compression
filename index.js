@@ -134,7 +134,7 @@ class SmartBuffer {
 		this.length = 0;
 		this.buffer = malloc(DEFAULT_SIZE);
 	}
-	writeUint8(byte) {
+	push(byte) {
 		let { buffer } = this;
 		if (buffer.length < this.length+1) {
 			let newLength = Math.min(MAX_SIZE, 2*buffer.length);
@@ -173,7 +173,7 @@ function compress(input, opts = {}) {
 	// pointers here. While in C++ those are actually memory addresses, for us 
 	// they are just numbers, where 0 is the start of the input!
 	let out = new SmartBuffer();
-	const push = byte => out.writeUint8(byte);
+	const push = out.push.bind(out);
 
 	// Initialize our occurence tables. The C++ code is rather difficult to 
 	// understand here as there is a lot of pointer magic involved.Anyway, 
