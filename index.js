@@ -165,7 +165,7 @@ function compress(input, opts = {}) {
 	}
 
 	// Constants for tuning performance.
-	const { windowBits = 17 } = opts;
+	const { windowBits = 17, includeSize = false } = opts;
 	const WINDOW_LEN = 2**windowBits;
 	const WINDOW_MASK = WINDOW_LEN-1;
 
@@ -201,6 +201,12 @@ function compress(input, opts = {}) {
 			while (length--) push(input[lastwrot++]);
 		}
 	};
+
+	// If we have to include the size of the compressed buffer as well, we'll 
+	// reserve 4 bytes to write this away once we know the size.
+	if (includeSize) {
+		for (let i = 0; i < 4; i++) push(0);
+	}
 
 	// Write the header to the output.
 	push(0x10);
@@ -306,8 +312,19 @@ function compress(input, opts = {}) {
 	push(0xfc + length);
 	while (length--) push(input[lastwrot++]);
 
+	// If we have to include the size, of the *compressed* buffer, do that as 
+	// well.
+	let buffer = out.toBuffer();
+	if (includeSize) {
+		let size = out.length - 4;
+		buffer[0] = size & 0xff;
+		buffer[1] = (size >> 8) & 0xff;
+		buffer[2] = (size >> 16) & 0xff;
+		buffer[3] = (size >> 24) & 0xff;
+	}
+
 	// We're done!
-	return out.toBuffer();
+	return buffer;
 
 }
 exports.compress = compress;

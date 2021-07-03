@@ -82,6 +82,14 @@ describe('#compress()', function() {
 
 	});
 
+	it('includes the compressed size if specified', function() {
+		let input = Buffer.from('fooooooo bar');
+		let raw = compress(input);
+		let sized = compress(input, { includeSize: true });
+		expect(sized.length).to.equal(raw.length+4);
+		expect(sized.readUInt32LE(0)).to.equal(raw.length);
+	});
+
 	it('cannot compress data larger than 16MB', function() {
 
 		this.timeout(0);
