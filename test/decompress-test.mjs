@@ -1,5 +1,6 @@
+// # decompress-test.mjs
 import { expect } from 'chai';
-import { decompress, compress } from 'qfs-compression';
+import { decompress } from 'qfs-compression';
 
 describe('#decompress()', function() {
 

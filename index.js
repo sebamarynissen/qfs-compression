@@ -157,6 +157,12 @@ const QFS_MAXITER = 50;
 // so that we don't have to manage the output size manually.
 function compress(input, opts = {}) { 
 
+	// Important! If the input buffer is larger than 16MB, we can't compress 
+	// because that would cause a bit overflow and the size to be stored as 0!
+	if (input.length > 0xffffff) {
+		throw new Error(`Input size cannot be larger than ${0xffffff} bytes!`);
+	}
+
 	// Constants for tuning performance.
 	const { windowBits = 17 } = opts;
 	const WINDOW_LEN = 2**windowBits;
