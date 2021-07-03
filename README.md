@@ -34,6 +34,7 @@ let original = decompress(compressed);
  - input [&lt;Buffer&gt;](https://nodejs.org/api/buffer.html) | [&lt;Uint8Array&gt;](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) An uncompressed buffer of binary data that needs compression.
  - options &lt;Object&gt;:
    - `windowBits`: The amount of bits used for the sliding window. Defaults to `17`, which means a sliding window of 128 kB.
+   - `includeSize`: Prefix the compressed output with its size as an Uint32LE. Defaults to `false`.
 
 ### `decompress(input)`
 
