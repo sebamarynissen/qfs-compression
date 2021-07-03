@@ -159,7 +159,8 @@ function compress(input, opts = {}) {
 
 	// Important! If the input buffer is larger than 16MB, we can't compress 
 	// because that would cause a bit overflow and the size to be stored as 0!
-	if (input.length > 0xffffff) {
+	const inlen = input.length;
+	if (inlen > 0xffffff) {
 		throw new Error(`Input size cannot be larger than ${0xffffff} bytes!`);
 	}
 
@@ -168,11 +169,8 @@ function compress(input, opts = {}) {
 	const WINDOW_LEN = 2**windowBits;
 	const WINDOW_MASK = WINDOW_LEN-1;
 
-	// Initialize our occurence tables. The C++ code is rather difficult to 
-	// understand here, but we need to understand that we're basically storing 
-	// pointers here. While in C++ those are actually memory addresses, for us 
-	// they are just numbers, where 0 is the start of the input!
-	let out = new SmartBuffer();
+	// Prepare our buffer to which we'll write the output.
+	const out = new SmartBuffer();
 	const push = out.push.bind(out);
 
 	// Initialize our occurence tables. The C++ code is rather difficult to 
@@ -205,16 +203,15 @@ function compress(input, opts = {}) {
 	};
 
 	// Write the header to the output.
-	// TODO: we should look in the options to determine whether we have to 
-	// include the size as well.
 	push(0x10);
 	push(0xfb);
-	push(input.length >> 16);
-	push((input.length >> 8) & 0xff);
-	push(input.length & 0xff);
+	push(inlen >> 16);
+	push((inlen >> 8) & 0xff);
+	push(inlen & 0xff);
 
 	// Main encoding loop.
-	for (; inpos < input.length-1; inpos++) {
+	const max = inlen-1;
+	for (; inpos < max; inpos++) {
 
 		// Update the occurence tables. The C++ code uses some pointer magic 
 		// for this, but we will do it in a more modern way. We simply update 
@@ -235,8 +232,8 @@ function compress(input, opts = {}) {
 			let incmp = inpos + 2;
 			let inref = offs + 2;
 			while (
-				incmp < input.length &&
-				inref < input.length &&
+				incmp < inlen &&
+				inref < inlen &&
 				input[incmp++] === input[inref++] &&
 				length < 1028
 			) {
@@ -250,8 +247,8 @@ function compress(input, opts = {}) {
 		}
 
 		// Check if redundancy is good enough.
-		if (bestlen > input.length-inpos) {
-			bestlen = inpos-input.length;
+		if (bestlen > inlen-inpos) {
+			bestlen = inpos-inlen;
 		} else if (
 			bestlen <= 2 ||
 			(bestlen === 3 && bestoffs > 1024) ||
@@ -303,7 +300,7 @@ function compress(input, opts = {}) {
 
 	// Grab the length of what still needs to be processed and write it away 
 	// as a control character. Then, write the raw contents.
-	inpos = input.length;
+	inpos = inlen;
 	fill();
 	let length = inpos - lastwrot;
 	push(0xfc + length);
