@@ -6,7 +6,18 @@
 
 // # decompress(input)
 // JavaScript implementation of the QFS decompression algorithm.
+// IMPORTANT! In some cases, the first 4 bytes indicate the size of the input 
+// buffer. We **don't** detect this automatically, you need to discard those 4 
+// bytes yourself!
 function decompress(input) {
+
+	// Check magic number.
+	let [a, b] = input;
+	if (!((a === 0x10 || a === 0x11) && b === 0xfb)) {
+		throw new Error(
+			'Input is not a valid QFS compressed buffer! Did you forget to truncate the size bytes?'
+		);
+	}
 
 	// First two bytes are 0x10fb (QFS id), then follows the *uncompressed* 
 	// size, which allows us to prepare a buffer for it.

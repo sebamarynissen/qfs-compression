@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { decompress, compress } from 'qfs-compression';
 
-describe('Decompression', function() {
+describe('#decompress()', function() {
 
 	function header(size) {
 		return [0x10, 0xfb, size >> 16, (size >> 8) & 0xff, size & 0xff];
@@ -68,7 +68,14 @@ describe('Decompression', function() {
 
 		let input = new Uint8Array([...header(10), 0x19, 0x00, 97, 0xfc]);
 		let output = decompress(input);
-		expect([...output]).to.eql(new Array(10).fill(97));
+		expect(output+'').to.equal('a'.repeat(10));
+
+	});
+
+	it('throws an error for garbage data', function() {
+
+		let input = Buffer.from([0, 3, 4, 2, 3]);
+		expect(() => decompress(input)).to.throw(Error);
 
 	});
 
