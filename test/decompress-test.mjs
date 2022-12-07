@@ -69,7 +69,16 @@ describe('#decompress()', function() {
 
 		let input = new Uint8Array([...header(10), 0x19, 0x00, 97, 0xfc]);
 		let output = decompress(input);
-		expect(output+'').to.equal('a'.repeat(10));
+		let native = Buffer.from(output);
+		expect(native+'').to.equal('a'.repeat(10));
+
+	});
+
+	it('returns a Uint8Array if this was the input, even if Buffer is available', function() {
+
+		let input = new Uint8Array([...header(10), 0x19, 0x00, 97, 0xfc]);
+		let output = decompress(input);
+		expect(output.constructor).to.equal(Uint8Array);
 
 	});
 

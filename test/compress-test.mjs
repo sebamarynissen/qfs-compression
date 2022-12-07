@@ -116,4 +116,34 @@ describe('#compress()', function() {
 		}
 	});
 
+	it('returns a Uint8Array if the input was one too', function() {
+
+		let input = new Uint8Array(1024);
+		let out = compress(input);
+		expect(out.constructor).to.equal(input.constructor);
+
+	});
+
+	it('returns a custom buffer if the input was one too', function() {
+
+		class MyBuffer extends Uint8Array {}
+		let input = new MyBuffer(1024);
+		let out = compress(input);
+		expect(out.constructor).to.equal(MyBuffer);
+
+	});
+
+	it('respects [Symbol.species] for custom buffers', function() {
+
+		class MyBuffer extends Uint8Array {
+			static get [Symbol.species]() {
+				return Uint8Array;
+			}
+		}
+		let input = new MyBuffer(1024);
+		let out = compress(input);
+		expect(out.constructor).to.equal(Uint8Array);
+
+	});
+
 });

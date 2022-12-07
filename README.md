@@ -14,7 +14,7 @@ More information on it can be found on the [SC4 devotion wiki](https://www.wiki.
 
 The module exports two functions: `compress()` and `decompress()`.
 Both accept either a Node.js [Buffer](https://nodejs.org/api/buffer.html) or a [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array).
-If the Buffer global is available - such as on Node - a Buffer is returned, otherwise a bare Uint8Array is returned.
+If a Node.js buffer was passed, a Node.js buffer is returned, otherwise a bare Uint8Array is returned.*
 This is useful in the browser as it does not require a Buffer polyfill this way.
 
 ```js
@@ -26,6 +26,9 @@ let input = new Uint8Array([...]);
 let compressed = compress(input);
 let original = decompress(compressed);
 ```
+
+* Technically speaking, if the input object's `constructor` exposes an `.allocUnsafe(size)` method - such as Node.js buffers - this method is used for setting up the output object as [this is the fastest](https://nodejs.org/api/buffer.html#static-method-bufferallocunsafesize).
+If no `.allocUnsafe()` is found, then the output object is created using `new input.constructor[Symbol.species](size)`, so it should work for custom classes that override `Uint8Array` too.
 
 ## Documentation
 

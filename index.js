@@ -19,6 +19,9 @@ function decompress(input) {
 		);
 	}
 
+	// Create an malloc function based on the input buffer class we received.
+	const malloc = createMalloc(input);
+
 	// First two bytes are 0x10fb (QFS id), then follows the *uncompressed* 
 	// size, which allows us to prepare a buffer for it.
 	const size = 0x10000*input[2] + 0x100*input[3] + input[4];
@@ -102,15 +105,18 @@ function decompress(input) {
 }
 exports.decompress = decompress;
 
-// # malloc(size)
-// Helper function for creating an empty buffer of the given size. If the 
-// Buffer global is available, we use that one, otherwise we'll return a bare 
-// Uint8Array.
-function malloc(size) {
-	if (typeof Buffer !== 'undefined') {
-		return Buffer.allocUnsafe(size);
+// # createMalloc(buffer)
+// Returns an `malloc()` function which reuses the constructor of the given 
+// buffer. That way, if we receive an Uint8Array, we output one as well and 
+// vice versa: if we receive a Node.js buffer - even in the browser - we return 
+// one.
+function createMalloc(buffer) {
+	const Ctor = buffer.constructor;
+	if (Ctor.allocUnsafe) {
+		return size => Ctor.allocUnsafe(size);
 	} else {
-		return new Uint8Array(size);
+		const Constructor = Ctor[Symbol.species] || Ctor;
+		return size => new Constructor(size);
 	}
 }
 
@@ -130,15 +136,16 @@ function memcpy(out, outpos, input, inpos, length) {
 const DEFAULT_SIZE = 4096;
 const MAX_SIZE = 32*1024*1024;
 class SmartBuffer {
-	constructor() {
+	constructor(malloc) {
 		this.length = 0;
 		this.buffer = malloc(DEFAULT_SIZE);
+		this.malloc = malloc;
 	}
 	push(byte) {
 		let { buffer } = this;
 		if (buffer.length < this.length+1) {
 			let newLength = Math.min(MAX_SIZE, 2*buffer.length);
-			let newBuffer = malloc(newLength);
+			let newBuffer = this.malloc(newLength);
 			newBuffer.set(buffer);
 			this.buffer = newBuffer;
 		}
@@ -170,7 +177,8 @@ function compress(input, opts = {}) {
 	const WINDOW_MASK = WINDOW_LEN-1;
 
 	// Prepare our buffer to which we'll write the output.
-	const out = new SmartBuffer();
+	const malloc = createMalloc(input);
+	const out = new SmartBuffer(malloc);
 	const push = out.push.bind(out);
 
 	// Initialize our occurence tables. The C++ code is rather difficult to 
