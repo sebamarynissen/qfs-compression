@@ -1,6 +1,6 @@
 {
   "name": "qfs-compression",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A JavaScript implementation of the QFS compression and decompression algorithm",
   "main": "index.js",
   "exports": {
