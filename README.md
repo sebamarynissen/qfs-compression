@@ -61,7 +61,7 @@ let output = decompress(new MyBuffer(1024));
    The library **does not** detect this automatically, so if you are dealing with such games, you need to manually truncate the bytes as
    
    ```js
-   decompress(input.slice(4))
+   decompress(input.subarray(4))
    ```
 ## Performance
 
